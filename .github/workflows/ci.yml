@@ -33,10 +33,22 @@ jobs:
         run: go build -o agent-linter ./cmd/agent-linter
 
       - name: Generate SARIF
-        run: ./agent-linter lint . --format sarif > agent-linter.sarif || true
+        run: |
+          ./agent-linter lint . --format sarif > agent-linter.sarif || true
+
+      - name: Upload SARIF if non-empty
+        if: success()
+        run: |
+          if jq -e '.runs[0].results | length > 0' agent-linter.sarif > /dev/null; then
+            echo "SARIF has results, uploading"
+          else
+            echo "SARIF has no results, skipping upload"
+            rm -f agent-linter.sarif
+          fi
 
       - name: Upload SARIF
-        uses: github/codeql-action/upload-sarif@v3
+        if: success() && hashFiles('agent-linter.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: agent-linter.sarif
 
