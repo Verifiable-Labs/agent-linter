@@ -37,3 +37,21 @@ release:
   github:
     owner: verifiable-labs
     name: agent-linter
+
+brews:
+  - name: agent-linter
+
+    homepage: https://github.com/verifiable-labs/agent-linter
+    description: Deterministic static analysis tool for executable AI agent behavior
+    license: Apache-2.0
+
+    repository:
+      owner: verifiable-labs
+      name: homebrew-tap
+
+    install: |
+      bin.install "agent-linter"
+
+    test: |
+      system "#{bin}/agent-linter version"
+
