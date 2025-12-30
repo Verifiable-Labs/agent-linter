@@ -1,0 +1,14 @@
+[
+  {
+    "name": "create_user",
+    "description": "Create a new user account",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "admin": { "type": "boolean" }
+      },
+      "required": ["email"]
+    }
+  }
+]

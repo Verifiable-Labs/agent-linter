@@ -7,6 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/verifiable-labs/agent-linter/internal/config"
+	"github.com/verifiable-labs/agent-linter/internal/engine"
 )
 
 func newLintCmd() *cobra.Command {
@@ -36,11 +37,35 @@ func newLintCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
+			inputs := engine.Inputs{}
 
-			fmt.Fprintf(os.Stdout, "Loaded config: %s\n", cfgFile)
-			fmt.Fprintf(os.Stdout, "Definitions: %d\n", len(cfg.Inputs.Definitions))
-			fmt.Fprintf(os.Stdout, "Invocations: %d\n", len(cfg.Inputs.Invocations))
-			fmt.Fprintf(os.Stdout, "Wiring: %d\n", len(cfg.Inputs.Wiring))
+			for _, p := range cfg.Inputs.Definitions {
+				defs, err := engine.LoadActionDefinitions(p)
+				if err != nil {
+					return err
+				}
+				inputs.Definitions = append(inputs.Definitions, defs...)
+			}
+
+			for _, p := range cfg.Inputs.Invocations {
+				inv, err := engine.LoadActionInvocations(p)
+				if err != nil {
+					return err
+				}
+				inputs.Invocations = append(inputs.Invocations, inv...)
+			}
+
+			for _, p := range cfg.Inputs.Wiring {
+				w, err := engine.LoadWiring(p)
+				if err != nil {
+					return err
+				}
+				inputs.Wiring = append(inputs.Wiring, w...)
+			}
+
+			fmt.Fprintf(os.Stdout, "Loaded %d action definitions\n", len(inputs.Definitions))
+			fmt.Fprintf(os.Stdout, "Loaded %d action invocations\n", len(inputs.Invocations))
+			fmt.Fprintf(os.Stdout, "Loaded %d wiring bindings\n", len(inputs.Wiring))
 
 			return nil
 		},
