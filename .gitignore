@@ -4,6 +4,13 @@
 *.exe
 *.out
 
+# CI artifacts
+*.sarif
+dist/
+
+# GoReleaser
+dist/
+
 # Go build artifacts
 /bin/
 /dist/

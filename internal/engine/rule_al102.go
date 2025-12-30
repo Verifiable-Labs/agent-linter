@@ -13,6 +13,10 @@ func (r RuleAL102InvocationMissingRequiredParams) DefaultSeverity() Severity {
 	return SeverityError
 }
 
+func (r RuleAL102InvocationMissingRequiredParams) Description() string {
+	return "Invocation must include required parameters"
+}
+
 func (r RuleAL102InvocationMissingRequiredParams) Apply(in Inputs) []Finding {
 	defByName := make(map[string]ActionDefinition)
 	for _, d := range in.Definitions {

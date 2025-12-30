@@ -9,6 +9,10 @@ func (r RuleAL201NoProdByDefault) DefaultSeverity() Severity {
 	return SeverityError
 }
 
+func (r RuleAL201NoProdByDefault) Description() string {
+	return "Production wiring must not be default"
+}
+
 func (r RuleAL201NoProdByDefault) Apply(in Inputs) []Finding {
 	var findings []Finding
 

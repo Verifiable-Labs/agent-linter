@@ -9,6 +9,12 @@ func (r RuleAL003DisallowPermissiveParamTypes) DefaultSeverity() Severity {
 	return SeverityWarning
 }
 
+func (r RuleAL003DisallowPermissiveParamTypes) Description() string {
+	return "Disallow overly permissive parameter types"
+}
+
+
+
 func (r RuleAL003DisallowPermissiveParamTypes) Apply(in Inputs) []Finding {
 	var findings []Finding
 

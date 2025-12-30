@@ -1,0 +1,29 @@
+name: agent-linter
+description: Deterministic static analysis for executable AI agent behavior
+author: Verifiable Labs
+
+inputs:
+  path:
+    description: Path to lint
+    required: false
+    default: "."
+
+  format:
+    description: Output format (text, json, sarif)
+    required: false
+    default: "text"
+
+runs:
+  using: composite
+  steps:
+    - name: Download agent-linter
+      shell: bash
+      run: |
+        VERSION=$(curl -s https://api.github.com/repos/verifiable-labs/agent-linter/releases/latest | grep tag_name | cut -d '"' -f 4)
+        curl -L https://github.com/verifiable-labs/agent-linter/releases/download/${VERSION}/agent-linter_${VERSION#v}_linux_amd64.tar.gz | tar xz
+        sudo mv agent-linter /usr/local/bin/agent-linter
+
+    - name: Run agent-linter
+      shell: bash
+      run: |
+        agent-linter lint ${{ inputs.path }} --format ${{ inputs.format }}

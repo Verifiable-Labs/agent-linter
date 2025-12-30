@@ -8,6 +8,11 @@ func (r RuleAL001DuplicateActionNames) ID() string { return "AL001" }
 
 func (r RuleAL001DuplicateActionNames) DefaultSeverity() Severity { return SeverityError }
 
+func (r RuleAL001DuplicateActionNames) Description() string {
+	return "Action names must be unique"
+}
+
+
 func (r RuleAL001DuplicateActionNames) Apply(in Inputs) []Finding {
 	seen := make(map[string]int)
 	var findings []Finding

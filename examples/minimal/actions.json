@@ -1,0 +1,10 @@
+[
+  {
+    "name": "ping",
+    "description": "Health check",
+    "parameters": {
+      "type": "object",
+      "properties": {}
+    }
+  }
+]

@@ -9,6 +9,10 @@ func (r RuleAL101InvocationMustReferenceKnownAction) DefaultSeverity() Severity 
 	return SeverityError
 }
 
+func (r RuleAL101InvocationMustReferenceKnownAction) Description() string {
+	return "Invocation must reference a known action"
+}
+
 func (r RuleAL101InvocationMustReferenceKnownAction) Apply(in Inputs) []Finding {
 	known := make(map[string]bool)
 	for _, d := range in.Definitions {

@@ -2,6 +2,7 @@ package app
 
 import (
 	"github.com/spf13/cobra"
+	
 )
 
 func NewRootCmd() *cobra.Command {
@@ -13,6 +14,8 @@ func NewRootCmd() *cobra.Command {
 
 	cmd.AddCommand(newVersionCmd())
 	cmd.AddCommand(newLintCmd())
+	cmd.AddCommand(newRulesCmd())
+
 
 	return cmd
 }
