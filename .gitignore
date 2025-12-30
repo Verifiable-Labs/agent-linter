@@ -1,5 +1,6 @@
-# Binaries
-agent-linter
+# Binaries (only ignore root-level binary)
+/agent-linter
+/agent-linter.exe
 *.exe
 *.out
 

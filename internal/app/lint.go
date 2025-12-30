@@ -21,6 +21,7 @@ func newLintCmd() *cobra.Command {
 		Use:   "lint [paths...]",
 		Short: "Lint an agent project (definitions, invocations, wiring)",
 		Args:  cobra.ArbitraryArgs,
+		SilenceUsage: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if format != "human" && format != "json" && format != "sarif" {
 				return fmt.Errorf("unsupported format %q (use human, json, sarif)", format)
