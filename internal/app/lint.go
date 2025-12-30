@@ -5,6 +5,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"encoding/json"
+
 	"github.com/spf13/cobra"
 	"github.com/verifiable-labs/agent-linter/internal/config"
 	"github.com/verifiable-labs/agent-linter/internal/engine"
@@ -63,9 +65,29 @@ func newLintCmd() *cobra.Command {
 				inputs.Wiring = append(inputs.Wiring, w...)
 			}
 
-			fmt.Fprintf(os.Stdout, "Loaded %d action definitions\n", len(inputs.Definitions))
-			fmt.Fprintf(os.Stdout, "Loaded %d action invocations\n", len(inputs.Invocations))
-			fmt.Fprintf(os.Stdout, "Loaded %d wiring bindings\n", len(inputs.Wiring))
+			rules := engine.DefaultRules()
+			result := engine.Run(inputs, rules)
+
+			if format == "json" {
+				enc := json.NewEncoder(os.Stdout)
+				enc.SetIndent("", "  ")
+				if err := enc.Encode(result); err != nil {
+					return err
+				}
+			} else {
+				if len(result.Findings) == 0 {
+					fmt.Fprintln(os.Stdout, "No findings.")
+				} else {
+					for _, f := range result.Findings {
+						fmt.Fprintf(os.Stdout, "[%s] %s: %s\n", f.Severity, f.RuleID, f.Message)
+						fmt.Fprintf(os.Stdout, "Remediation: %s\n", f.Remediation)
+					}
+				}
+			}
+
+			if result.HasErrors() {
+				return fmt.Errorf("%w", ErrLintFailed)
+			}
 
 			return nil
 		},
