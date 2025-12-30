@@ -1,6 +1,9 @@
-package app
+package output
 
 import (
+	"path/filepath"
+	"sort"
+
 	"github.com/verifiable-labs/agent-linter/internal/engine"
 )
 
@@ -20,10 +23,10 @@ type sarifTool struct {
 }
 
 type sarifDriver struct {
-	Name           string        `json:"name"`
-	InformationURI string        `json:"informationUri,omitempty"`
-	Rules          []sarifRule   `json:"rules,omitempty"`
-	Version        string        `json:"version,omitempty"`
+	Name           string      `json:"name"`
+	InformationURI string      `json:"informationUri,omitempty"`
+	Version        string      `json:"version,omitempty"`
+	Rules          []sarifRule `json:"rules,omitempty"`
 }
 
 type sarifRule struct {
@@ -35,12 +38,14 @@ type sarifRule struct {
 }
 
 type sarifResult struct {
-	RuleID    string `json:"ruleId"`
-	Level     string `json:"level"`
-	Message   struct {
-		Text string `json:"text"`
-	} `json:"message"`
-	Locations []sarifLocation `json:"locations,omitempty"`
+	RuleID    string           `json:"ruleId"`
+	Level     string           `json:"level"`
+	Message   sarifMessage     `json:"message"`
+	Locations []sarifLocation  `json:"locations"`
+}
+
+type sarifMessage struct {
+	Text string `json:"text"`
 }
 
 type sarifLocation struct {
@@ -57,29 +62,34 @@ type sarifArtifactLocation struct {
 
 func toSarif(findings []engine.Finding, version string) sarifLog {
 	rulesMap := make(map[string]sarifRule)
-
 	var results []sarifResult
+
 	for _, f := range findings {
+		// GitHub Code Scanning requires at least one location
+		if f.File == "" {
+			continue
+		}
+
 		level := "warning"
 		if f.Severity == engine.SeverityError {
 			level = "error"
 		}
 
-		var res sarifResult
-		res.RuleID = f.RuleID
-		res.Level = level
-		res.Message.Text = f.Message
+		uri := filepath.ToSlash(f.File)
 
-		if f.File != "" {
-			res.Locations = []sarifLocation{
+		res := sarifResult{
+			RuleID:  f.RuleID,
+			Level:   level,
+			Message: sarifMessage{Text: f.Message},
+			Locations: []sarifLocation{
 				{
 					PhysicalLocation: sarifPhysicalLocation{
 						ArtifactLocation: sarifArtifactLocation{
-							URI: f.File,
+							URI: uri,
 						},
 					},
 				},
-			}
+			},
 		}
 
 		results = append(results, res)
@@ -98,7 +108,19 @@ func toSarif(findings []engine.Finding, version string) sarifLog {
 		sarifRules = append(sarifRules, r)
 	}
 
-	log := sarifLog{
+	sort.Slice(sarifRules, func(i, j int) bool {
+		return sarifRules[i].ID < sarifRules[j].ID
+	})
+
+	sort.Slice(results, func(i, j int) bool {
+		if results[i].RuleID == results[j].RuleID {
+			return results[i].Locations[0].PhysicalLocation.ArtifactLocation.URI <
+				results[j].Locations[0].PhysicalLocation.ArtifactLocation.URI
+		}
+		return results[i].RuleID < results[j].RuleID
+	})
+
+	return sarifLog{
 		Version: "2.1.0",
 		Schema:  "https://json.schemastore.org/sarif-2.1.0.json",
 		Runs: []sarifRun{
@@ -115,6 +137,4 @@ func toSarif(findings []engine.Finding, version string) sarifLog {
 			},
 		},
 	}
-
-	return log
 }
