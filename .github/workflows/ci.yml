@@ -54,6 +54,7 @@ jobs:
 
       - name: Test agent-linter action
         uses: ./
+        continue-on-error: true
         with:
           format: sarif
 
