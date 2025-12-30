@@ -1,5 +1,5 @@
 bindings:
   - action: create_user
     adapter: http
-    environment: dev
+    environment: prod
     target: user-service

@@ -5,21 +5,9 @@
     "parameters": {
       "type": "object",
       "properties": {
-        "email": { "type": "string" },
-        "admin": { "type": "boolean" }
+        "payload": { "type": "any" }
       },
-      "required": ["email"]
-    }
-  },
-  {
-    "name": "create_user",
-    "description": "Duplicate action name",
-    "parameters": {
-      "type": "object",
-      "properties": {
-        "email": { "type": "string" }
-      },
-      "required": ["email"]
+      "required": ["payload"]
     }
   }
 ]

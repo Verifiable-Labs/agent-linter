@@ -93,7 +93,12 @@ func newLintCmd() *cobra.Command {
 			if format == "json" {
 				enc := json.NewEncoder(os.Stdout)
 				enc.SetIndent("", "  ")
-				if err := enc.Encode(result); err != nil {
+
+				out := Output{
+					Version:  1,
+					Findings: result.Findings,
+				}
+				if err := enc.Encode(out); err != nil {
 					return err
 				}
 			} else {
