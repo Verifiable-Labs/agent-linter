@@ -29,7 +29,7 @@ func newLintCmd() *cobra.Command {
 
 			cfgFile := configPath
 			if cfgFile == "" {
-				cfgFile = "agent-linter.yaml"
+				cfgFile = "testdata/agent-linter.yaml"
 			}
 
 			cfgFile, err := filepath.Abs(cfgFile)

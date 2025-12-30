@@ -7,11 +7,11 @@ rules:
 
 inputs:
   definitions:
-    - "actions.json"
+    - "testdata/actions.json"
   invocations:
-    - "invocations.jsonl"
+    - "testdata/invocations.jsonl"
   wiring:
-    - "wiring.yaml"
+    - "testdata/wiring.yaml"
 
 environments:
   default: dev
