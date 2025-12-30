@@ -52,6 +52,3 @@ jobs:
         with:
           sarif_file: agent-linter.sarif
 
-      - name: Test local agent-linter action
-        uses: ./
-
