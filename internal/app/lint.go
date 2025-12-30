@@ -1,16 +1,16 @@
 package app
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
-
-	"encoding/json"
 	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/verifiable-labs/agent-linter/internal/config"
 	"github.com/verifiable-labs/agent-linter/internal/engine"
+	"github.com/verifiable-labs/agent-linter/internal/output"
 )
 
 func newLintCmd() *cobra.Command {
@@ -18,9 +18,9 @@ func newLintCmd() *cobra.Command {
 	var configPath string
 
 	cmd := &cobra.Command{
-		Use:   "lint [paths...]",
-		Short: "Lint an agent project (definitions, invocations, wiring)",
-		Args:  cobra.ArbitraryArgs,
+		Use:          "lint [paths...]",
+		Short:        "Lint an agent project (definitions, invocations, wiring)",
+		Args:         cobra.ArbitraryArgs,
 		SilenceUsage: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if format != "human" && format != "json" && format != "sarif" {
@@ -49,9 +49,10 @@ func newLintCmd() *cobra.Command {
 				enabled[ruleID] = r.Enabled
 
 				var sev engine.Severity
-				if r.Severity == "error" {
+				switch r.Severity {
+				case "error":
 					sev = engine.SeverityError
-				} else if r.Severity == "warning" {
+				case "warning":
 					sev = engine.SeverityWarning
 				}
 
@@ -93,17 +94,18 @@ func newLintCmd() *cobra.Command {
 			result.Findings = engine.ApplyRuleSettings(result.Findings, settings)
 			result.Findings = applySuppressions(result.Findings, cfg.Suppress, time.Now())
 
-			if format == "sarif" {
-				log := toSarif(result.Findings, Version)
+			switch format {
+			case "sarif":
+				log := output.ToSarif(result.Findings, Version)
 				enc := json.NewEncoder(os.Stdout)
 				enc.SetIndent("", "  ")
 				if err := enc.Encode(log); err != nil {
 					return err
 				}
-			} else if format == "json" {
+
+			case "json":
 				enc := json.NewEncoder(os.Stdout)
 				enc.SetIndent("", "  ")
-
 				out := Output{
 					Version:  1,
 					Findings: result.Findings,
@@ -111,7 +113,8 @@ func newLintCmd() *cobra.Command {
 				if err := enc.Encode(out); err != nil {
 					return err
 				}
-			} else {
+
+			default:
 				if len(result.Findings) == 0 {
 					fmt.Fprintln(os.Stdout, "No findings.")
 				} else {
@@ -123,7 +126,7 @@ func newLintCmd() *cobra.Command {
 			}
 
 			if result.HasErrors() {
-				return fmt.Errorf("%w", ErrLintFailed)
+				return ErrLintFailed
 			}
 
 			return nil

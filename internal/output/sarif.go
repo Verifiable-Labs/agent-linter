@@ -60,7 +60,7 @@ type sarifArtifactLocation struct {
 	URI string `json:"uri"`
 }
 
-func toSarif(findings []engine.Finding, version string) sarifLog {
+func ToSarif(findings []engine.Finding, version string) sarifLog {
 	rulesMap := make(map[string]sarifRule)
 	var results []sarifResult
 
