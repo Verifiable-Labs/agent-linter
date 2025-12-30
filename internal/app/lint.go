@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"encoding/json"
+	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/verifiable-labs/agent-linter/internal/config"
@@ -89,8 +90,16 @@ func newLintCmd() *cobra.Command {
 			rules := engine.DefaultRules()
 			result := engine.Run(inputs, rules, enabled)
 			result.Findings = engine.ApplyRuleSettings(result.Findings, settings)
+			result.Findings = applySuppressions(result.Findings, cfg.Suppress, time.Now())
 
-			if format == "json" {
+			if format == "sarif" {
+				log := toSarif(result.Findings, Version)
+				enc := json.NewEncoder(os.Stdout)
+				enc.SetIndent("", "  ")
+				if err := enc.Encode(log); err != nil {
+					return err
+				}
+			} else if format == "json" {
 				enc := json.NewEncoder(os.Stdout)
 				enc.SetIndent("", "  ")
 

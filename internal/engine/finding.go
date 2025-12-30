@@ -13,4 +13,6 @@ type Finding struct {
 	Message     string   `json:"message"`
 	Remediation string   `json:"remediation"`
 	File        string   `json:"file,omitempty"`
+
+	Fingerprint string `json:"fingerprint"`
 }
