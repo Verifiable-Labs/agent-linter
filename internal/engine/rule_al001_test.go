@@ -10,7 +10,7 @@ func TestAL001DuplicateActionNames(t *testing.T) {
 		},
 	}
 
-	res := Run(in, []Rule{RuleAL001DuplicateActionNames{}})
+	res := Run(in, []Rule{RuleAL001DuplicateActionNames{}}, nil)
 	if len(res.Findings) != 1 {
 		t.Fatalf("expected 1 finding, got %d", len(res.Findings))
 	}

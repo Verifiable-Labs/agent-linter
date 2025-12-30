@@ -6,6 +6,8 @@ type RuleAL001DuplicateActionNames struct{}
 
 func (r RuleAL001DuplicateActionNames) ID() string { return "AL001" }
 
+func (r RuleAL001DuplicateActionNames) DefaultSeverity() Severity { return SeverityError }
+
 func (r RuleAL001DuplicateActionNames) Apply(in Inputs) []Finding {
 	seen := make(map[string]int)
 	var findings []Finding
@@ -18,7 +20,7 @@ func (r RuleAL001DuplicateActionNames) Apply(in Inputs) []Finding {
 		if count > 1 {
 			findings = append(findings, Finding{
 				RuleID:      r.ID(),
-				Severity:    SeverityError,
+				Severity:    r.DefaultSeverity(),
 				Message:     fmt.Sprintf("duplicate action name %q appears %d times", name, count),
 				Remediation: "Rename or remove duplicates so every action name is unique.",
 			})

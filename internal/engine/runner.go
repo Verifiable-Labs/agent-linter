@@ -6,10 +6,15 @@ type Result struct {
 	Findings []Finding
 }
 
-func Run(in Inputs, rules []Rule) Result {
+func Run(in Inputs, rules []Rule, enabled map[string]bool) Result {
 	var out []Finding
 
 	for _, rule := range rules {
+		if enabled != nil {
+			if ok, exists := enabled[rule.ID()]; exists && !ok {
+				continue
+			}
+		}
 		out = append(out, rule.Apply(in)...)
 	}
 

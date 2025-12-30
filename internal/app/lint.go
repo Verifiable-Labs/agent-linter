@@ -39,6 +39,27 @@ func newLintCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
+
+			enabled := map[string]bool{}
+			settings := map[string]engine.RuleSetting{}
+
+			for ruleID, r := range cfg.Rules {
+				enabled[ruleID] = r.Enabled
+
+				var sev engine.Severity
+				if r.Severity == "error" {
+					sev = engine.SeverityError
+				} else if r.Severity == "warning" {
+					sev = engine.SeverityWarning
+				}
+
+				settings[ruleID] = engine.RuleSetting{
+					Enabled:  r.Enabled,
+					Severity: sev,
+					HasValue: true,
+				}
+			}
+
 			inputs := engine.Inputs{}
 
 			for _, p := range cfg.Inputs.Definitions {
@@ -66,7 +87,8 @@ func newLintCmd() *cobra.Command {
 			}
 
 			rules := engine.DefaultRules()
-			result := engine.Run(inputs, rules)
+			result := engine.Run(inputs, rules, enabled)
+			result.Findings = engine.ApplyRuleSettings(result.Findings, settings)
 
 			if format == "json" {
 				enc := json.NewEncoder(os.Stdout)
